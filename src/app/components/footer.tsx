@@ -47,23 +47,23 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <motion.div whileHover={{ scale: 1.2, color: "#E1306C" }}>
-                <Link href="#" className="text-gray-400 hover:text-brown-400">
+                <Link href="https://www.instagram.com/zelincafe" target="_blank" className="text-gray-400 hover:text-brown-400">
                   <Instagram className="h-5 w-5" />
                   <span className="sr-only">Instagram</span>
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.2, color: "#1877F2" }}>
-                <Link href="#" className="text-gray-400 hover:text-brown-400">
+                <Link href="https://www.facebook.com/zelincafe" target="_blank"  className="text-gray-400 hover:text-brown-400">
                   <Facebook className="h-5 w-5" />
                   <span className="sr-only">Facebook</span>
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.2, color: "#1DA1F2" }}>
+              {/* <motion.div whileHover={{ scale: 1.2, color: "#1DA1F2" }}>
                 <Link href="#" className="text-gray-400 hover:text-brown-400">
                   <Twitter className="h-5 w-5" />
                   <span className="sr-only">Twitter</span>
                 </Link>
-              </motion.div>
+              </motion.div> */}
             </div>
           </motion.div>
           <motion.div variants={itemVariants} className="grid grid-cols-2 gap-8">
