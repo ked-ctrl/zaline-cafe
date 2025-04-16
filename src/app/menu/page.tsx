@@ -83,15 +83,8 @@ export default function MenuPage() {
 
   // Generate QR code URL
   const generateQR = () => {
-    // Get the current port (default is 3000 for Next.js)
-    const port = window.location.port || '3000'
-    // Get the local IP address
-    const ipAddress = window.location.hostname === 'localhost' 
-      ? getLocalIPAddress() 
-      : window.location.hostname
-    const url = `http://${ipAddress}:${port}/menu`
-    setQrValue(url)
-    setShowQR(true)
+ 
+   <img  src="C:\Users\Tim\Documents\Capstone\zaline-cafe\public\images\gallerySection\qrcode.png" ></img>
   }
 
   // Helper function to get local IP address
