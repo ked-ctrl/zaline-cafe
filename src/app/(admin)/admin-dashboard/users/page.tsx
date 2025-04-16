@@ -161,7 +161,7 @@ export default function UsersPage() {
                   <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                       <DialogTitle>Add New User</DialogTitle>
-                      <DialogDescription>Create a new user account. Click save when you're done.</DialogDescription>
+                      <DialogDescription>Create a new user account. Click save when you&apos;re done.</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">

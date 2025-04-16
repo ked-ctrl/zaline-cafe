@@ -35,7 +35,7 @@ const teamMembers = [
 const testimonials = [
   {
     name: "David Wilson",
-    text: "Zelin Café has the best cappuccino in town! The atmosphere is cozy and the staff is always friendly. It's my go-to spot for both work and relaxation.",
+    text: "Zelin Café has the best cappuccino in town! The atmosphere is cozy and the staff is always friendly. It&apos; my go-to spot for both work and relaxation.",
     rating: 5,
   },
   {
@@ -130,7 +130,7 @@ export default function AboutPage() {
                     from farm to cup maintains our commitment to quality and sustainability.
                   </p>
                   <p>
-                    At Zelin Café, we believe that great coffee is an art form - one that we're proud to share with our
+                    At Zelin Café, we believe that great coffee is an art form - one that we&apos;e proud to share with our
                     community every day.
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export default function AboutPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-center">
-                      We're committed to ethical sourcing, eco-friendly practices, and supporting the communities that
+                      We&apos;e committed to ethical sourcing, eco-friendly practices, and supporting the communities that
                       grow our coffee.
                     </p>
                   </CardContent>
@@ -245,7 +245,7 @@ export default function AboutPage() {
                   <CardContent>
                     <p className="text-center">
                       We create spaces where people connect, collaborate, and feel at home. Our café is more than a
-                      business—it's a community hub.
+                      business—it&apos; a community hub.
                     </p>
                   </CardContent>
                 </Card>
@@ -266,7 +266,7 @@ export default function AboutPage() {
             >
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight">What Our Customers Say</h2>
               <p className="mt-4 text-gray-600 text-sm md:text-base">
-                Don't just take our word for it - hear from our community.
+                Don&apos; just take our word for it - hear from our community.
               </p>
             </motion.div>
 
@@ -291,7 +291,7 @@ export default function AboutPage() {
                           />
                         ))}
                       </div>
-                      <p className="italic mb-4">"{testimonial.text}"</p>
+                      <p className="italic mb-4">&quot;{testimonial.text}&quot;</p>
                       <p className="font-semibold">- {testimonial.name}</p>
                     </CardContent>
                   </Card>
