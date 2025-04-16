@@ -126,9 +126,9 @@ export default function AdminSignupPage() {
               <CardFooter className="flex flex-col">
                 <p className="text-center text-sm text-gray-600">
                   Already have an account?{" "}
-                  <a href="/admin-login" className="text-gray-800 hover:underline">
+                  {/* <a href="/admin-login" className="text-gray-800 hover:underline">
                     Log in
-                  </a>
+                  </a> */}
                 </p>
               </CardFooter>
             </Card>
