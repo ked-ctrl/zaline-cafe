@@ -124,7 +124,7 @@ export default function Footer() {
             Parañaque, Philippines
             </p>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Link href="#" className="inline-block text-brown-400 hover:underline">
+              <Link href="https://www.google.com/maps/place/F2F4%2B576+Lombos+St,+Para%C3%B1aque,+Metro+Manila" target="_blank" className="inline-block text-brown-400 hover:underline">
                 Get Directions
               </Link>
             </motion.div>
