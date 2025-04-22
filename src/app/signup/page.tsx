@@ -23,7 +23,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState("")
   const [agreeTerms, setAgreeTerms] = useState(false)
 
-  const containerVariants = {
+  const containerVariants = { 
+
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -100,7 +101,7 @@ export default function SignupPage() {
                       <Label htmlFor="name">Full Name</Label>
                       <Input
                         id="name"
-                        placeholder="John Doe"
+                        placeholder="Your Name"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -133,7 +134,7 @@ export default function SignupPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {/* {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} */}
                         </button>
                       </div>
                       <p className="text-xs text-gray-500">Password must be at least 8 characters long</p>
