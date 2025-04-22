@@ -67,7 +67,7 @@ export default function SignupPage() {
       document.cookie = `user-session=${JSON.stringify(data)}; path=/;`
   
       // Redirect to dashboard
-      window.location.href = '/dashboard'
+      window.location.href = '/customer-menu'
     } catch (error: any) {
       console.error("Signup error:", error)
       alert(`Signup failed: ${error?.message || 'Unknown error occurred'}`)
