@@ -34,18 +34,18 @@ const teamMembers = [
 // Mock data for testimonials
 const testimonials = [
   {
-    name: "David Wilson",
-    text: "Zelin Café has the best cappuccino in town! The atmosphere is cozy and the staff is always friendly. It&apos; my go-to spot for both work and relaxation.",
+    name: "Donna Emira Matel",
+    text: "We tried Dark Paquito Mocha & Zeny Mocha (love their coffee!) & Strawberry and Lychee Refreshers. They offer big servings of rice meals. Pesto pasta is great. Very accommodating barista and pet friendly cafe 😍",
     rating: 5,
   },
   {
-    name: "Jessica Lee",
-    text: "I love their pastries, especially the croissants. Everything is freshly baked and you can taste the quality. The coffee is exceptional too!",
+    name: "Marielle Ruvas",
+    text: "Good food, good place to catch up with friends plus poging barista char haha",
     rating: 5,
   },
   {
-    name: "Robert Taylor",
-    text: "Great place to work remotely. The wifi is reliable, the coffee keeps coming, and the ambient noise is just right. Highly recommend!",
+    name: "Nelle Lopez",
+    text: "This is my 2nd time availing this coffee. Nung una Isang flavor lng, and since nagustuhan ko yung unang coffee flavor, here I am, ordered a set na. Done tasting the ernest caramel latte and Dark Paquito Mocha. 🤤 For a coffee lover like me, it’s so hard to resist tasting the other flavors na rin kaya lang since in moderation dahil hyper-acidic control muna. 😅 Excited to taste others. Thanks for this variety of flavors you let us indulge with Zelin Coffee. Will definitely order again. 😉",
     rating: 4,
   },
 ]
@@ -325,8 +325,8 @@ export default function AboutPage() {
                     <Clock className="h-5 w-5 text-amber-600 mt-0.5" />
                     <div>
                       <h3 className="font-semibold">Hours</h3>
-                      <p>Monday - Friday: 6am - 8pm</p>
-                      <p>Saturday - Sunday: 7am - 9pm</p>
+                      <p>Monday - Saturday: 8am - 10pm</p>
+                  
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
