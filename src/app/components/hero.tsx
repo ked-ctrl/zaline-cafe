@@ -152,7 +152,7 @@ export default function Hero() {
                 </motion.p>
                 <div className="h-8 overflow-hidden">
                   <AnimatePresence mode="wait">
-                    {testimonials.map((testimonial,) => (
+                    {testimonials.map((testimonial, index) => (
                       <motion.p
                         key={testimonial}
                         initial={{ opacity: 0, y: 20 }}
@@ -161,7 +161,7 @@ export default function Hero() {
                         transition={{ duration: 0.5 }}
                         className="text-white/80 text-lg font-light italic"
                       >
-                        &quot;{testimonial}&quot;
+                        "{testimonial}"
                       </motion.p>
                     ))}
                   </AnimatePresence>
@@ -189,7 +189,7 @@ export default function Hero() {
                     <h3 className="text-white font-medium text-xl">Puto Bumbong Latte</h3>
                     <p className="text-amber-200 mt-1">Our award-winning blend</p>
                     <div className="mt-4 flex justify-between items-center">
-                      <span className="text-white font-bold text-2xl">$18.95</span>
+                      <span className="text-white font-bold text-2xl">₱155</span>
                       <Button 
                         size="sm" 
                         className="bg-amber-600 hover:bg-amber-700 text-white"
