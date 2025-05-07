@@ -259,25 +259,25 @@ export default function Gallery() {
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Heart className="h-5 w-5" />
+                    {/* <Heart className="h-5 w-5" />
                   </button>
                   <button 
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
-                  >
-                    <Share2 className="h-5 w-5" />
+                  > */}
+                    {/* <Share2 className="h-5 w-5" />
                   </button>
                   <button 
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
-                  >
-                    <Download className="h-5 w-5" />
+                  > */}
+                   {/* <Download className="h-5 w-5" /> */}
                   </button>
                   <button
                     className="ml-2 p-2 text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedImage(null)
+                      setSelectedImage(null) 
                     }}
                   >
                     <X className="h-5 w-5" />

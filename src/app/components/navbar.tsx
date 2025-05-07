@@ -126,7 +126,7 @@ export default function Navbar() {
             className="md:hidden border-t overflow-hidden"
           >
             <div className="container py-4 px-4 space-y-4">
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="w-full justify-between">
                     Menu <ChevronDown className="h-4 w-4 ml-2" />
@@ -154,7 +154,7 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
               <Link href="#about" className="block py-2 hover:text-brown-600">
                 About
               </Link>

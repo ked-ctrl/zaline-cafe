@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { uploadImage } from "@/lib/storage";
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
+import { User } from "@supabase/supabase-js";
 
 // Add proper type definitions
 interface MenuItem {
@@ -80,7 +81,7 @@ export default function FoodItemsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const [admin, setAdmin] = useState<any>(null);
+  const [admin, setAdmin] = useState<User>();
 
     // Define fetchMenuItems unconditionally
     const fetchMenuItems = useCallback(async () => {

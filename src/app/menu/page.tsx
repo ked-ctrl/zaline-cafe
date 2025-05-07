@@ -85,7 +85,10 @@ export default function MenuPage() {
   const generateQR = () => {
  
    <img  src="C:\Users\Tim\Documents\Capstone\zaline-cafe\public\images\gallerySection\qrcode.png" ></img>
-  }
+   
+    }
+  
+    
 
   // Helper function to get local IP address
   const getLocalIPAddress = () => {
@@ -171,8 +174,8 @@ export default function MenuPage() {
 
               <div className="w-full md:w-auto overflow-auto">
                 <Tabs defaultValue="All" onValueChange={setActiveCategory} className="w-full">
-                  <TabsList className="w-full md:w-auto flex flex-nowrap overflow-x-auto bg-amber-50 border border-amber-200">
-                    {categories.map((category) => (
+                  {/* <TabsList className="w-full md:w-auto flex flex-nowrap overflow-x-auto bg-amber-50 border border-amber-200"> */}
+                    {/* {categories.map((category) => (
                       <TabsTrigger 
                         key={category} 
                         value={category} 
@@ -181,21 +184,21 @@ export default function MenuPage() {
                         {category}
                       </TabsTrigger>
                     ))}
-                  </TabsList>
+                  </TabsList> */}
                 </Tabs>
               </div>
 
               {/* Add QR Code Button */}
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button 
+                  {/* <Button 
                     variant="outline" 
                     className="bg-amber-50 hover:bg-amber-100 border-amber-200"
                     onClick={generateQR}
                   >
                     <QrCode className="h-4 w-4 mr-2" />
                     Get QR Code
-                  </Button>
+                  </Button> */}
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogTitle className="text-lg font-semibold text-center">

@@ -59,8 +59,8 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen bg-gray-50">
-        <Sidebar variant="sidebar" collapsible="icon" className="border-r border-gray-200">
+      <div className="flex h-screen w-screen bg-gray-50">
+        <Sidebar variant="sidebar" collapsible="icon" className="border-r border-gray-200 w-64">
           <SidebarHeader className="border-b border-gray-200 px-3 py-2">
             <Link href="/dashboard" className="flex items-center gap-2">
               <motion.div whileHover={{ rotate: 10 }} transition={{ type: "spring", stiffness: 400 }}>
@@ -139,7 +139,7 @@ export default function DashboardLayout({
         </Sidebar>
 
         <div className="flex-1 overflow-auto">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 sm:px-6">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-6">
             <SidebarTrigger />
             <div className="flex-1">
               <h1 className="text-lg font-semibold">
@@ -157,10 +157,9 @@ export default function DashboardLayout({
               </Link>
             </Button>
           </header>
-          <main className="p-4 md:p-6">{children}</main>
+          <main className="p-6">{children}</main>
         </div>
       </div>
     </SidebarProvider>
   )
 }
-

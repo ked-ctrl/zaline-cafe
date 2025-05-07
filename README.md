@@ -56,7 +56,7 @@ HOST=0.0.0.0 npm run dev
 - On other devices: Use your computer's IP address (e.g., `http://192.168.1.100:3000`)
 - here are is the admin account credentials:
 zelincafeadmin@gmail.com
-zelincafeadmin
+   zelincafeadmin
 
 ## QR Code Feature
 

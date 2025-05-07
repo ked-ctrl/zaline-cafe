@@ -244,12 +244,14 @@ export default function Cart() {
             <p className="text-xl font-bold text-gray-900">${totalPrice.toFixed(2)}</p>
           </div>
         </div>
-        <Button
-          className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-lg"
-          onClick={() => toast.success('Checkout functionality coming soon!')}
-        >
-          Proceed to Checkout
-        </Button>
+          <Button
+            className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-lg"
+            onClick={() => toast.success('Checkout functionality coming soon!')}
+            
+          >
+            
+            Proceed to Checkout
+          </Button>
       </div>
     </div>
   )}

@@ -33,8 +33,8 @@ export default function Footer() {
       variants={containerVariants}
       className="bg-black text-white"
     >
-      <div className="container px-4 py-12 md:px-6 mx-auto">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 max-w-7xl mx-auto">
+      <div className="container px-3 py-12 md:px-6 mx-auto">
+        <div className="grid grid-cols-1 gap- md:grid-cols-3 max-w-7xl mx-auto">
           <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center gap-2">
               <motion.div whileHover={{ rotate: 10 }} transition={{ type: "spring", stiffness: 400 }}>
@@ -68,8 +68,8 @@ export default function Footer() {
           </motion.div>
           <motion.div variants={itemVariants} className="grid grid-cols-2 gap-8">
             <div className="space-y-4">
-              <h3 className="text-sm font-medium uppercase tracking-wider">Menu</h3>
-              <ul className="space-y-2">
+              {/* <h3 className="text-sm font-medium uppercase tracking-wider">Menu</h3> */}
+              {/* <ul className="space-y-2">
                 <motion.li whileHover={{ x: 5 }}>
                   <Link href="#" className="text-gray-400 hover:text-brown-400">
                     Hot Coffee
@@ -78,7 +78,7 @@ export default function Footer() {
                 <motion.li whileHover={{ x: 5 }}>
                   <Link href="#" className="text-gray-400 hover:text-brown-400">
                     Cold Brew
-                  </Link>
+                  </Link>s
                 </motion.li>
                 <motion.li whileHover={{ x: 5 }}>
                   <Link href="#" className="text-gray-400 hover:text-brown-400">
@@ -90,7 +90,7 @@ export default function Footer() {
                     Pastries
                   </Link>
                 </motion.li>
-              </ul>
+              </ul> */}
             </div>
             <div className="space-y-4">
               <h3 className="text-sm font-medium uppercase tracking-wider">Company</h3>

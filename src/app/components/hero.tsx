@@ -152,7 +152,7 @@ export default function Hero() {
                 </motion.p>
                 <div className="h-8 overflow-hidden">
                   <AnimatePresence mode="wait">
-                    {testimonials.map((testimonial, index) => (
+                    {testimonials.map((testimonial,) => (
                       <motion.p
                         key={testimonial}
                         initial={{ opacity: 0, y: 20 }}
@@ -161,7 +161,7 @@ export default function Hero() {
                         transition={{ duration: 0.5 }}
                         className="text-white/80 text-lg font-light italic"
                       >
-                        "{testimonial}"
+                        &quot;{testimonial}&quot;
                       </motion.p>
                     ))}
                   </AnimatePresence>
