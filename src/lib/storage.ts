@@ -1,19 +1,21 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { STORAGE } from '@/config/constants'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase environment variables')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-export const uploadImage = async (file: File, bucketName: string = 'menu-images'): Promise<string> => {
+/**
+ * Upload an image to Supabase storage
+ * 
+ * @param file - The file to upload
+ * @param bucketName - The storage bucket name (defaults to menu-images)
+ * @returns The file path of the uploaded image
+ */
+export const uploadImage = async (
+  file: File, 
+  bucketName: string = STORAGE.BUCKETS.MENU_IMAGES
+): Promise<string> => {
   try {
     const fileExt = file.name.split('.').pop()
     const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`
-    const filePath = `${fileName}`  // Store only the file name
+    const filePath = `${fileName}`
 
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -23,7 +25,7 @@ export const uploadImage = async (file: File, bucketName: string = 'menu-images'
       throw new Error(`Failed to upload image: ${uploadError.message}`)
     }
 
-    return filePath  // Return only the file path
+    return filePath
   } catch (error) {
     console.error('Error uploading image:', error)
     throw error

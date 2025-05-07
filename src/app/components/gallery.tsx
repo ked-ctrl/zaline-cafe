@@ -10,41 +10,21 @@ const galleryImages = [
   {
     src: "/images/gallerySection/galleryImage1.jpg",
     alt: "Coffee brewing process",
-    caption: "Our signature brew",
+    caption: "Our signature brewing process",
     category: "brewing",
   },
   {
     src: "/images/gallerySection/galleryImage2.jpg",
     alt: "Latte art",
-    caption: "",
-    category: "brewing",
-  },
-
-
-
-
-  {
-    src: "/images/gallerySection/ZELIN-506.jpg",
-    alt: "Latte art",
     caption: "Award-winning latte art",
     category: "art",
   },
-
-  {
-    src: "/images/gallerySection/ZELIN-318.jpg",
-    alt: "Coffee beans",
-    caption: "",
-    category: "food",
-  },  
-
-
-  
   {
     src: "/images/gallerySection/galleryImage3.jpg",
     alt: "Coffee beans",
-    caption: "Freshly Made Pasta",
-    category: "food",
-  },  
+    caption: "Freshly roasted beans",
+    category: "beans",
+  },
   {
     src: "/images/gallerySection/galleryImage4.jpg",
     alt: "Café interior",
@@ -54,8 +34,8 @@ const galleryImages = [
   {
     src: "/images/gallerySection/galleryImage5.jpg",
     alt: "Pastries display",
-    caption: "",
-    category: "brewing",
+    caption: "Freshly baked pastries",
+    category: "food",
   },
   {
     src: "/images/gallerySection/galleryImage6.jpg",
@@ -259,25 +239,25 @@ export default function Gallery() {
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* <Heart className="h-5 w-5" />
+                    <Heart className="h-5 w-5" />
                   </button>
                   <button 
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
-                  > */}
-                    {/* <Share2 className="h-5 w-5" />
+                  >
+                    <Share2 className="h-5 w-5" />
                   </button>
                   <button 
                     className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors"
                     onClick={(e) => e.stopPropagation()}
-                  > */}
-                   {/* <Download className="h-5 w-5" /> */}
+                  >
+                    <Download className="h-5 w-5" />
                   </button>
                   <button
                     className="ml-2 p-2 text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedImage(null) 
+                      setSelectedImage(null)
                     }}
                   >
                     <X className="h-5 w-5" />

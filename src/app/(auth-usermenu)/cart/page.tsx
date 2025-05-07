@@ -1,8 +1,8 @@
 "use client"
 
 import CustomerNavbar from "@/components/CustomerNavbar"
-import Cart from "@/components/Cart"
 import Footer from "../../components/footer"
+import { Cart } from "@/components/Cart"
 
 export default function CartPage() {
   return (

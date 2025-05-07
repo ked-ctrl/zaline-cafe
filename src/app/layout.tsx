@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zelin Cafe",
+  title: "Zeline Cafe",
   description: "We offer handcrafted coffee straight to your doorstep to satisfy your cravings and fuel your day.",
 };
 

@@ -1,69 +1,64 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { AUTH, ROUTES } from "@/config/constants"
 
+/**
+ * Authentication middleware
+ * Handles route protection and redirects based on user authentication status
+ */
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
 
-  // Debugging: Log the request path
-  console.log('Middleware triggered for path:', req.nextUrl.pathname)
-
-  // Get admin session from cookies
-  const adminSession = req.cookies.get('admin-session')?.value
+  // Get sessions from cookies
+  const adminSession = req.cookies.get(AUTH.COOKIES.ADMIN_SESSION)?.value
+  const userSession = req.cookies.get(AUTH.COOKIES.USER_SESSION)?.value
+  
+  // Parse session data
   const admin = adminSession ? JSON.parse(adminSession) : null
-
-  // Get user session from cookies
-  const userSession = req.cookies.get('user-session')?.value
   const user = userSession ? JSON.parse(userSession) : null
 
-  // Debugging: Log sessions
-  console.log('Admin session:', admin)
-  console.log('User session:', user)
+  // Define page types
+  const isAuthPage = [ROUTES.LOGIN, ROUTES.SIGNUP].includes(req.nextUrl.pathname)
+  const isAdminAuthPage = req.nextUrl.pathname === ROUTES.ADMIN_LOGIN
+  const isProtectedPage = req.nextUrl.pathname.startsWith(ROUTES.ADMIN_DASHBOARD)
+  const isUserProtectedPage = req.nextUrl.pathname.startsWith(ROUTES.CUSTOMER_MENU)
 
-  const isAuthPage = req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/signup'
-  const isAdminAuthPage = req.nextUrl.pathname === '/admin-login'
-  const isProtectedPage = req.nextUrl.pathname.startsWith('/admin-dashboard')
-  const isUserProtectedPage = req.nextUrl.pathname.startsWith('/customer-menu')
-
-  // ✅ If there's no admin session & trying to access a protected admin page → redirect to admin login
+  // Handle admin routes
   if (!adminSession && isProtectedPage) {
-    console.log('Redirecting to admin login') // Debugging
+    // Redirect to admin login if trying to access protected admin pages without admin session
     const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/admin-login'
-    redirectUrl.searchParams.set('redirectedFrom', req.nextUrl.pathname)
+    redirectUrl.pathname = ROUTES.ADMIN_LOGIN
+    redirectUrl.searchParams.set(AUTH.REDIRECT_QUERY_PARAM, req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
-  // ✅ If admin is logged in & trying to access admin auth pages → redirect to admin dashboard
   if (adminSession && isAdminAuthPage) {
-    console.log('Redirecting to admin dashboard') // Debugging
-    return NextResponse.redirect(new URL('/admin-dashboard', req.url))
+    // Redirect to admin dashboard if admin is already logged in
+    return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url))
   }
 
-  // ✅ If there's no user session & no admin session & trying to access a user protected page → redirect to login
+  // Handle user routes
   if (!userSession && !adminSession && isUserProtectedPage) {
-    console.log('Redirecting to login') // Debugging
+    // Redirect to login if trying to access user protected pages without any session
     const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/login'
-    redirectUrl.searchParams.set('redirectedFrom', req.nextUrl.pathname)
+    redirectUrl.pathname = ROUTES.LOGIN
+    redirectUrl.searchParams.set(AUTH.REDIRECT_QUERY_PARAM, req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
-  // ✅ If user is logged in & trying to access auth pages → redirect to customer menu
   if (userSession && isAuthPage) {
-    console.log('Redirecting to customer menu') // Debugging
-    return NextResponse.redirect(new URL('/customer-menu', req.url))
+    // Redirect to customer menu if user is already logged in
+    return NextResponse.redirect(new URL(ROUTES.CUSTOMER_MENU, req.url))
   }
 
-  // ✅ If admin is logged in & trying to access auth pages → redirect to admin dashboard
   if (adminSession && isAuthPage) {
-    console.log('Redirecting to admin dashboard') // Debugging
-    return NextResponse.redirect(new URL('/admin-dashboard', req.url))
+    // Redirect to admin dashboard if admin is trying to access auth pages
+    return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url))
   }
 
-  // ✅ If logged in & has a "redirectedFrom" param, send them there
-  if ((userSession || adminSession) && req.nextUrl.searchParams.has('redirectedFrom')) {
-    console.log('Redirecting to redirectedFrom path') // Debugging
-    const redirectPath = req.nextUrl.searchParams.get('redirectedFrom') || '/customer-menu'
+  // Handle redirects from login
+  if ((userSession || adminSession) && req.nextUrl.searchParams.has(AUTH.REDIRECT_QUERY_PARAM)) {
+    const redirectPath = req.nextUrl.searchParams.get(AUTH.REDIRECT_QUERY_PARAM) || ROUTES.CUSTOMER_MENU
     return NextResponse.redirect(new URL(redirectPath, req.url))
   }
 

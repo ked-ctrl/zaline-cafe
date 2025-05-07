@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Coffee, User } from "lucide-react"
+import { Search, Coffee } from "lucide-react"
 import { Menu } from "../../../components/Menu"
-import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import CustomerNavbar from "@/components/CustomerNavbar"
 import Footer from "../../components/footer"
+import { supabase } from "@/lib/supabase"
+import { useCart } from "@/hooks/use-cart"
 
 interface MenuItem {
   id: string
@@ -23,25 +23,15 @@ interface MenuItem {
   stock: number
 }
 
-interface SupabaseError {
-  message: string
-  code: string
-  details?: string
-  hint?: string
-}
-
-const isSupabaseError = (error: unknown): error is SupabaseError => {
-  return typeof error === 'object' && error !== null && 'code' in error
-}
-
 export default function CustomerMenu() {
   const [searchTerm, setSearchTerm] = useState("")
   const [activeCategory, setActiveCategory] = useState("All")
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [categories, setCategories] = useState<string[]>(["All"])
   const [loading, setLoading] = useState(true)
-  const [userEmail, setUserEmail] = useState<string | null>(null) // Add this line
-  const [full_name, setFullname] = useState<string | null>(null)
+  const [fullName, setFullName] = useState<string | null>(null)
+  const { addToCart, cartItems } = useCart()
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false)
 
   // Fetch user session on component mount
   useEffect(() => {
@@ -52,7 +42,7 @@ export default function CustomerMenu() {
 
     if (userSession) {
       const user = JSON.parse(userSession)
-      setFullname(full_name)
+      setFullName(user.full_name)
     }
   }, [])
 
@@ -86,80 +76,28 @@ export default function CustomerMenu() {
 
   const handleAddToCart = async (item: MenuItem) => {
     try {
-      // Get user session from cookies
       const userSession = document.cookie
         .split('; ')
         .find(row => row.startsWith('user-session='))
-        ?.split('=')[1];
-  
+        ?.split('=')[1]
+
       if (!userSession) {
-        toast.error('Please sign in to add items to cart');
-        return;
+        toast.error('Please sign in to add items to cart')
+        return
       }
-  
-      const user = JSON.parse(userSession);
-      const userId = user.id;
-  
-      console.log('User ID:', userId); // Debugging
-      console.log('Adding item to cart:', {
-        user_id: userId,
-        menu_item_id: item.id
-      });
-  
-      // Check if item already exists in cart
-      const { data: existingItem, error: fetchError } = await supabase
-        .from('cart')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('menu_item_id', item.id)
-        .single();
-  
-      if (fetchError && fetchError.code !== 'PGRST116') { // Ignore "No rows found" error
-        throw fetchError;
-      }
-  
-      if (existingItem) {
-        // Update quantity if item exists
-        const { error } = await supabase
-          .from('cart')
-          .update({ 
-            quantity: existingItem.quantity + 1,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingItem.id);
-  
-        if (error) throw error;
-        console.log('Item quantity updated:', existingItem.id); // Debugging
-        toast.success(`${item.menu_name} quantity updated in cart`);
+
+      const success = await addToCart(item)
+      if (success) {
+        toast.success('Item added to cart')
       } else {
-        // Add new item to cart
-        const { error } = await supabase
-          .from('cart')
-          .insert({
-            user_id: userId,
-            menu_item_id: item.id,
-            quantity: 1
-          });
-  
-        if (error) throw error;
-        console.log('New item added to cart:', item.id); // Debugging
-        toast.success(`${item.menu_name} added to cart`);
+        toast.error('Failed to add item to cart')
       }
-    } catch (error: unknown) {
-      if (isSupabaseError(error)) {
-        console.error('Detailed cart error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-      } else if (error instanceof Error) {
-        console.error('Error:', error.message);
-      }
-      toast.error('Failed to add item to cart');
+    } catch (error) {
+      console.error('Error adding item to cart:', error)
+      toast.error('Failed to add item to cart')
     }
-  };
-  
+  }
+
   // Filter items
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch =
@@ -183,19 +121,18 @@ export default function CustomerMenu() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <CustomerNavbar />
+      <CustomerNavbar cartItemCount={cartItems.length} />
       
       <main className="flex-1">
         <div className="container px-4 md:px-6 mx-auto py-8">
-          {/* Add a welcome message */}
-          {userEmail && (
+          {fullName && (
             <div className="mb-4 text-center text-lg font-medium">
-             Welcome, {}!
-            </div>  
+              Welcome, {fullName}!
+            </div>
           )}
 
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div className="relative w-full md:w-64">
+          <div className="flex flex-col md:flex-row items-center mb-8 gap-4">
+            <div className="relative flex-1 min-w-[200px] max-w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 type="search"
@@ -205,21 +142,33 @@ export default function CustomerMenu() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
-            <div className="w-full md:w-auto overflow-auto">
-              <Tabs defaultValue="All" onValueChange={setActiveCategory} className="w-full">
-                <TabsList className="w-full md:w-auto flex flex-nowrap overflow-x-auto bg-amber-50 border border-amber-200">
+            
+            <div className="relative w-full md:w-auto">
+              <button
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                className="flex items-center justify-between w-full md:w-48 px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none"
+              >
+                <span>All</span>
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              {isCategoryOpen && (
+                <div className="absolute right-0 mt-2 w-full md:w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                   {categories.map((category) => (
-                    <TabsTrigger 
-                      key={category} 
-                      value={category} 
-                      className="whitespace-nowrap data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setActiveCategory(category)
+                        setIsCategoryOpen(false)
+                      }}
+                      className={`block w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 text-left ${activeCategory === category ? 'bg-red-100' : ''}`}
                     >
                       {category}
-                    </TabsTrigger>
+                    </button>
                   ))}
-                </TabsList>
-              </Tabs>
+                </div>
+              )}
             </div>
           </div>
 
