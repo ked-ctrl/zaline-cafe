@@ -20,14 +20,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, MoreHorizontal, Mail, Phone, User, ShoppingBag, UserPlus, ArrowUpDown } from "lucide-react"
+import { Search, MoreHorizontal, Phone, User, ShoppingBag, UserPlus, ArrowUpDown, Calendar, Mail } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
 interface User {
@@ -36,11 +36,18 @@ interface User {
   email: string
   phone: string
   role: "Customer" | "Staff" | "Admin"
-  status: "active" | "inactive"
+  status: "active" | "inactive" | "deactivated"
   joinDate: string
   orders: number
   totalSpent: string
   address: string
+}
+
+interface Order {
+  id: string
+  total: number
+  status: string
+  created_at: string
 }
 
 export default function UsersPage() {
@@ -49,11 +56,15 @@ export default function UsersPage() {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "ascending" | "descending" } | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
+  const [isOrdersDialogOpen, setIsOrdersDialogOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [userOrders, setUserOrders] = useState<Order[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
-  const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "Customer", address: "" })
+  const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "Customer" })
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -100,8 +111,8 @@ export default function UsersPage() {
         
         if (ordersError) throw ordersError;
 
-        // Define the threshold for "active" status (3 months ago from May 06, 2025)
-        const threeMonthsAgo = new Date('2025-02-06T00:00:00Z'); // February 06, 2025
+        // Define the threshold for "active" status (3 months ago from May 07, 2025)
+        const threeMonthsAgo = new Date('2025-02-07T00:00:00Z'); // February 07, 2025
 
         const formattedUsers: User[] = [];
 
@@ -126,7 +137,7 @@ export default function UsersPage() {
                 email: users.email,
                 phone: 'N/A',
                 role: users.role || 'Customer',
-                status: status as "active" | "inactive",
+                status: status as "active" | "inactive" | "deactivated",
                 joinDate: users.created_at ? new Date(users.created_at).toLocaleDateString() : 'N/A',
                 orders: orderCount,
                 totalSpent: totalSpent,
@@ -157,7 +168,7 @@ export default function UsersPage() {
                 email: admin.email,
                 phone: 'N/A',
                 role: 'Admin' as const,
-                status: status as "active" | "inactive",
+                status: status as "active" | "inactive" | "deactivated",
                 joinDate: admin.created_at ? new Date(admin.created_at).toLocaleDateString() : 'N/A',
                 orders: orderCount,
                 totalSpent: totalSpent,
@@ -186,12 +197,8 @@ export default function UsersPage() {
       users.phone.includes(searchTerm)
 
     const matchesRole = roleFilter === "all" || users.role === roleFilter
-    const matchesTab =
-      activeTab === "all" ||
-      (activeTab === "active" && users.status === "active") ||
-      (activeTab === "inactive" && users.status === "inactive")
 
-    return matchesSearch && matchesRole && matchesTab
+    return matchesSearch && matchesRole
   })
 
   // Sort users
@@ -238,7 +245,6 @@ export default function UsersPage() {
         full_name: newUser.name,
         phone: newUser.phone || null,
         role: newUser.role !== "Admin" ? newUser.role : null,
-        address: newUser.address || null,
         created_at: new Date().toISOString(),
       }
 
@@ -256,7 +262,7 @@ export default function UsersPage() {
       const { data: usersData } = await supabase.from("users").select("id, email, full_name, role, created_at")
       const { data: adminData } = await supabase.from("admin").select("id, email, created_at")
       const { data: ordersData } = await supabase.from("orders").select("id, user_id, total, status, created_at")
-      const threeMonthsAgo = new Date('2025-02-06T00:00:00Z'); // February 06, 2025
+      const threeMonthsAgo = new Date('2025-02-07T00:00:00Z'); // February 07, 2025
       const formattedUsers: User[] = []
 
       if (usersData) {
@@ -278,7 +284,7 @@ export default function UsersPage() {
               email: users.email,
               phone: 'N/A',
               role: users.role || 'Customer',
-              status: status as "active" | "inactive",
+              status: status as "active" | "inactive" | "deactivated",
               joinDate: users.created_at ? new Date(users.created_at).toLocaleDateString() : 'N/A',
               orders: orderCount,
               totalSpent: totalSpent,
@@ -307,7 +313,7 @@ export default function UsersPage() {
               email: admin.email,
               phone: 'N/A',
               role: 'Admin' as const,
-              status: status as "active" | "inactive",
+              status: status as "active" | "inactive" | "deactivated",
               joinDate: admin.created_at ? new Date(admin.created_at).toLocaleDateString() : 'N/A',
               orders: orderCount,
               totalSpent: totalSpent,
@@ -318,11 +324,34 @@ export default function UsersPage() {
       }
 
       setUsers(formattedUsers)
-      setNewUser({ name: "", email: "", phone: "", role: "Customer", address: "" })
+      setNewUser({ name: "", email: "", phone: "", role: "Customer" })
       setIsAddDialogOpen(false)
     } catch (error: any) {
       console.error('Error adding users:', error.message)
       // Optionally show a toast error
+    }
+  }
+
+  const handleViewProfile = (user: User) => {
+    setSelectedUser(user)
+    setIsProfileDialogOpen(true)
+  }
+
+  const handleViewOrders = async (user: User) => {
+    try {
+      const { data: ordersData, error } = await supabase
+        .from('orders')
+        .select('id, total, status, created_at')
+        .eq('user_id', user.id)
+
+      if (error) throw error
+
+      setUserOrders(ordersData || [])
+      setSelectedUser(user)
+      setIsOrdersDialogOpen(true)
+    } catch (error: any) {
+      console.error('Error fetching orders:', error.message)
+      setUserOrders([])
     }
   }
 
@@ -413,18 +442,6 @@ export default function UsersPage() {
                           <option value="Admin">Admin</option>
                         </select>
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="address" className="text-right">
-                          Address
-                        </Label>
-                        <Input
-                          id="address"
-                          value={newUser.address}
-                          onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
-                          placeholder="Full address"
-                          className="col-span-3"
-                        />
-                      </div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -447,14 +464,6 @@ export default function UsersPage() {
                     Total Non-Admin Users: <span className="font-medium">{nonAdminUsersCount}</span>
                   </p>
                 </div>
-
-                <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
-                  <TabsList>
-                    <TabsTrigger value="all">All Users</TabsTrigger>
-                    <TabsTrigger value="active">Active</TabsTrigger>
-                    <TabsTrigger value="inactive">Inactive</TabsTrigger>
-                  </TabsList>
-                </Tabs>
 
                 <div className="flex flex-wrap gap-2 mb-6">
                   <Button
@@ -553,10 +562,6 @@ export default function UsersPage() {
                           <TableCell>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1">
-                                <Mail className="h-3 w-3 text-gray-500" />
-                                <span className="text-sm">{users.email}</span>
-                              </div>
-                              <div className="flex items-center gap-1 mt-1">
                                 <Phone className="h-3 w-3 text-gray-500" />
                                 <span className="text-sm">{users.phone}</span>
                               </div>
@@ -574,7 +579,7 @@ export default function UsersPage() {
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary">
-                              {users.status === "active" ? "Active" : "Inactive"}
+                              {users.status.charAt(0).toUpperCase() + users.status.slice(1)}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -587,20 +592,14 @@ export default function UsersPage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleViewProfile(users)}>
                                   <User className="mr-2 h-4 w-4" />
                                   View Profile
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleViewOrders(users)}>
                                   <ShoppingBag className="mr-2 h-4 w-4" />
                                   View Orders
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Mail className="mr-2 h-4 w-4" />
-                                  Send Email
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600">Deactivate Account</DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -609,6 +608,108 @@ export default function UsersPage() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Profile Dialog */}
+                <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Profile</DialogTitle>
+                    </DialogHeader>
+                    {selectedUser && (
+                      <div className="space-y-4">
+                        <div className="flex justify-center">
+                          <Avatar className="h-24 w-24">
+                            <AvatarImage
+                              src={`/placeholder.svg?height=96&width=96&text=${selectedUser.name.charAt(0)}`}
+                              alt={selectedUser.name}
+                            />
+                            <AvatarFallback>{selectedUser.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-500" />
+                            <div>
+                              <p className="text-sm font-medium">Name</p>
+                              <p className="text-sm">{selectedUser.name}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-500" />
+                            <div>
+                              <p className="text-sm font-medium">Username</p>
+                              <p className="text-sm">{selectedUser.name.toLowerCase()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-gray-500" />
+                            <div>
+                              <p className="text-sm font-medium">Joined Date</p>
+                              <p className="text-sm">{selectedUser.joinDate}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-gray-500" />
+                            <div>
+                              <p className="text-sm font-medium">Email Address</p>
+                              <p className="text-sm">{selectedUser.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Orders Dialog */}
+                <Dialog open={isOrdersDialogOpen} onOpenChange={setIsOrdersDialogOpen}>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>{selectedUser?.name}'s Orders</DialogTitle>
+                      <DialogDescription>List of orders placed by this user.</DialogDescription>
+                    </DialogHeader>
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Order ID</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {userOrders.length > 0 ? (
+                            userOrders.map((order) => (
+                              <TableRow key={order.id}>
+                                <TableCell>{order.id}</TableCell>
+                                <TableCell>₱{order.total.toFixed(2)}</TableCell>
+                                <TableCell>{order.status}</TableCell>
+                                <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={4} className="text-center">
+                                No orders found.
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsOrdersDialogOpen(false)}>
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </CardContent>
