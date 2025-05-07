@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Coffee, Search, QrCode } from "lucide-react"
+import { Coffee, Search, QrCode, ArrowUp, ArrowDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation"
 interface MenuItem {
   id: number
   menu_name: string
-  menu_description: string
+  menu_description: string | null
   menu_price: number
   menu_category: string
   menu_image: string
@@ -34,10 +34,13 @@ export default function MenuPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [activeCategory, setActiveCategory] = useState("All")
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
-  const [categories, setCategories] = useState<string[]>(["All"])
+  const [categories, setCategories] = useState<string[]>(["All", "NON-CAFFEINATED", "FOOD", "CAFFEINATED"])
   const [loading, setLoading] = useState(true)
   const [showQR, setShowQR] = useState(false)
   const [qrValue, setQrValue] = useState('')
+  const [sortBy, setSortBy] = useState("Name")
+  const [sortOrder, setSortOrder] = useState("Ascending")
+  const [isSortOpen, setIsSortOpen] = useState(false)
   const router = useRouter()
 
   // Fetch menu items from Supabase
@@ -54,10 +57,6 @@ export default function MenuPage() {
 
         if (data) {
           setMenuItems(data as MenuItem[])
-          
-          // Extract unique categories
-          const uniqueCategories = [...new Set(data.map((item: MenuItem) => item.menu_category))]
-          setCategories(['All', ...uniqueCategories])
         }
       } catch (error) {
         toast.error('Failed to load menu items')
@@ -70,29 +69,51 @@ export default function MenuPage() {
     fetchMenuItems()
   }, [])
 
-  // Filter menu items based on search term and active category
-  const filteredItems = menuItems.filter((item) => {
-    const matchesSearch =
-      item.menu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.menu_description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter and sort menu items
+  const filteredItems = menuItems
+    .filter((item) => {
+      const matchesSearch =
+        item.menu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.menu_description || '').toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesCategory = activeCategory === "All" || item.menu_category === activeCategory
+      const matchesCategory = activeCategory === "All" || item.menu_category === activeCategory
 
-    return matchesSearch && matchesCategory
-  })
+      return matchesSearch && matchesCategory
+    })
+    .sort((a, b) => {
+      let valueA, valueB
+      switch (sortBy) {
+        case "Name":
+          valueA = a.menu_name
+          valueB = b.menu_name
+          break
+        case "Price":
+          valueA = a.menu_price
+          valueB = b.menu_price
+          break
+        default:
+          valueA = a.menu_name
+          valueB = b.menu_name
+      }
+      if (sortOrder === "Ascending") {
+        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0
+      } else {
+        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0
+      }
+    })
 
   // Generate QR code URL
   const generateQR = () => {
- 
-   <img  src="C:\Users\Tim\Documents\Capstone\zaline-cafe\public\images\gallerySection\qrcode.png" ></img>
-   
-    }
-  
-    
+    const port = window.location.port || '3000'
+    const ipAddress = window.location.hostname === 'localhost' 
+      ? getLocalIPAddress() 
+      : window.location.hostname
+    const url = `http://${ipAddress}:${port}/menu`
+    setQrValue(url)
+    setShowQR(true)
+  }
 
-  // Helper function to get local IP address
   const getLocalIPAddress = () => {
-    // This will get the first non-internal IPv4 address
     const interfaces = require('os').networkInterfaces()
     for (const name of Object.keys(interfaces)) {
       for (const iface of interfaces[name]) {
@@ -130,7 +151,6 @@ export default function MenuPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative py-12 md:py-24 bg-gradient-to-b from-amber-200/60 to-amber-700/90 text-white">
-          {/* Background Image */}
           <div className="absolute inset-0 -z-10">
             <Image
               src={HeroBackground}
@@ -160,67 +180,82 @@ export default function MenuPage() {
         {/* Menu Section */}
         <section className="py-12 bg-gradient-to-b from-amber-50 to-white">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  type="search"
-                  placeholder="Search menu..."
-                  className="pl-8 w-full bg-white border-gray-300 focus:border-amber-500 focus:ring-amber-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+              <div className="flex items-center gap-4 w-full">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    type="search"
+                    placeholder="Search menu..."
+                    className="pl-8 w-full bg-white border border-gray-300 rounded-md focus:border-amber-500 focus:ring-amber-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
 
-              <div className="w-full md:w-auto overflow-auto">
-                <Tabs defaultValue="All" onValueChange={setActiveCategory} className="w-full">
-                  {/* <TabsList className="w-full md:w-auto flex flex-nowrap overflow-x-auto bg-amber-50 border border-amber-200"> */}
-                    {/* {categories.map((category) => (
-                      <TabsTrigger 
-                        key={category} 
-                        value={category} 
-                        className="whitespace-nowrap data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full md:w-auto">
+                  <TabsList className="bg-amber-50 border border-amber-200 rounded-md p-1 flex space-x-1">
+                    {categories.map((category) => (
+                      <TabsTrigger
+                        key={category}
+                        value={category}
+                        className="whitespace-nowrap px-3 py-1 text-sm rounded-md data-[state=active]:bg-amber-600 data-[state=active]:text-white"
                       >
                         {category}
                       </TabsTrigger>
                     ))}
-                  </TabsList> */}
+                  </TabsList>
                 </Tabs>
               </div>
 
-              {/* Add QR Code Button */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  {/* <Button 
-                    variant="outline" 
-                    className="bg-amber-50 hover:bg-amber-100 border-amber-200"
-                    onClick={generateQR}
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <span className="text-amber-800 font-medium text-sm md:text-base">Sort By:</span>
+                <div className="relative w-full md:w-48">
+                  <button
+                    onClick={() => setIsSortOpen(!isSortOpen)}
+                    className="flex items-center justify-between w-full px-4 py-2 bg-amber-50 border border-amber-300 rounded-lg text-amber-800 hover:bg-amber-100 focus:outline-none shadow-sm transition-all duration-200"
                   >
-                    <QrCode className="h-4 w-4 mr-2" />
-                    Get QR Code
-                  </Button> */}
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogTitle className="text-lg font-semibold text-center">
-                    Scan to Share Menu
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-gray-500 text-center">
-                    Scan this QR code to share the menu on your mobile device
-                  </DialogDescription>
-                  {qrValue && (
-                    <div className="p-4 bg-white rounded-lg">
-                      <QRCodeSVG 
-                        value={qrValue}
-                        size={256}
-                        level="H"
-                        includeMargin={true}
-                        fgColor="#92400e" // amber-800
-                        bgColor="#ffffff"
-                      />
+                    <span className="font-medium">{sortBy} ({sortOrder})</span>
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                  {isSortOpen && (
+                    <div className="absolute z-10 mt-2 w-48 bg-white border border-amber-200 rounded-lg shadow-lg">
+                      <div className="py-2">
+                        <button
+                          onClick={() => { setSortBy("Name"); setIsSortOpen(false); }}
+                          className={`block w-full px-4 py-2 text-sm text-gray-800 hover:bg-amber-50 ${sortBy === "Name" ? "bg-amber-100 font-semibold" : ""}`}
+                        >
+                          Name
+                        </button>
+                        <button
+                          onClick={() => { setSortBy("Price"); setIsSortOpen(false); }}
+                          className={`block w-full px-4 py-2 text-sm text-gray-800 hover:bg-amber-50 ${sortBy === "Price" ? "bg-amber-100 font-semibold" : ""}`}
+                        >
+                          Price
+                        </button>
+                      </div>
+                      <div className="py-2 border-t border-amber-200">
+                        <button
+                          onClick={() => { setSortOrder("Ascending"); setIsSortOpen(false); }}
+                          className={`flex items-center w-full px-4 py-2 text-sm text-gray-800 hover:bg-amber-50 ${sortOrder === "Ascending" ? "bg-amber-100 font-semibold" : ""}`}
+                        >
+                          <ArrowUp className="w-4 h-4 mr-2" />
+                          Ascending
+                        </button>
+                        <button
+                          onClick={() => { setSortOrder("Descending"); setIsSortOpen(false); }}
+                          className={`flex items-center w-full px-4 py-2 text-sm text-gray-800 hover:bg-amber-50 ${sortOrder === "Descending" ? "bg-amber-100 font-semibold" : ""}`}
+                        >
+                          <ArrowDown className="w-4 h-4 mr-2" />
+                          Descending
+                        </button>
+                      </div>
                     </div>
                   )}
-                </DialogContent>
-              </Dialog>
+                </div>
+              </div>
             </div>
 
             {loading ? (
@@ -261,7 +296,7 @@ export default function MenuPage() {
                     <div className="p-4">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-800">{item.menu_name}</h3>
-                        <p className="text-lg font-bold text-amber-600">${item.menu_price.toFixed(2)}</p>
+                        <p className="text-lg font-bold text-amber-600">₱{item.menu_price.toFixed(2)}</p>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">{item.menu_category}</p>
                       <p className="text-sm mt-2 text-gray-600 line-clamp-2">{item.menu_description}</p>
@@ -299,4 +334,3 @@ export default function MenuPage() {
     </div>
   )
 }
-
