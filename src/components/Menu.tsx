@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Edit, Trash2 } from "lucide-react"
 import { toast } from "react-hot-toast"
-
+import { supabase } from "@/lib/supabase"
 
 interface MenuItem {
   id: string

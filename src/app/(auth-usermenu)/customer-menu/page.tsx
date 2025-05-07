@@ -52,7 +52,7 @@ export default function CustomerMenu() {
 
     if (userSession) {
       const user = JSON.parse(userSession)
-      setFullname(full_name)
+      setUserEmail(user.email)
     }
   }, [])
 
@@ -190,8 +190,11 @@ export default function CustomerMenu() {
           {/* Add a welcome message */}
           {userEmail && (
             <div className="mb-4 text-center text-lg font-medium">
-             Welcome, {}!
-            </div>  
+             Welcome, {userEmail}!
+            </div>
+
+
+
           )}
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
