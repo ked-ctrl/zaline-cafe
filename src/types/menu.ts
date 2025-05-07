@@ -1,7 +1,3 @@
-/**
- * Menu item interface
- * Represents a single item on the menu
- */
 export interface MenuItem {
   id: string
   menu_name: string
@@ -14,4 +10,4 @@ export interface MenuItem {
   stock: number
   created_at?: string
   updated_at?: string
-}
+} 

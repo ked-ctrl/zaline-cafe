@@ -1,11 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
-import { SUPABASE_CONFIG } from '@/config/supabase'
 
-/**
- * Supabase client instance for database operations
- * This is the main client used throughout the application
- */
-export const supabase = createClient(
-  SUPABASE_CONFIG.URL!, 
-  SUPABASE_CONFIG.ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)

@@ -5,15 +5,21 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Edit, Trash2 } from "lucide-react"
-import { toast } from "sonner"
-import { SUPABASE_CONFIG } from "@/config/supabase"
-import { STORAGE } from "@/config/constants"
-import { MenuItem } from "@/types/menu"
-import { getUserSession } from "@/lib/auth"
+import { toast } from "react-hot-toast"
 
-/**
- * Menu component props
- */
+
+interface MenuItem {
+  id: string
+  menu_name: string
+  menu_description: string
+  menu_price: number
+  menu_category: string
+  menu_image: string
+  available: boolean
+  featured: boolean
+  stock: number
+}
+
 interface MenuProps {
   items: MenuItem[]
   onAddToCart?: (item: MenuItem) => void
@@ -22,17 +28,7 @@ interface MenuProps {
   onDelete?: (item: MenuItem) => void
 }
 
-/**
- * Menu component
- * Displays a grid of menu items with options for adding to cart or admin actions
- */
-export function Menu({ 
-  items, 
-  onAddToCart, 
-  isAdmin = false, 
-  onEdit, 
-  onDelete 
-}: MenuProps) {
+export function Menu({ items, onAddToCart, isAdmin = false, onEdit, onDelete }: MenuProps) {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -40,20 +36,6 @@ export function Menu({
       y: 0,
       transition: { duration: 0.5 },
     },
-  }
-
-  /**
-   * Handle adding an item to the cart
-   */
-  const handleAddToCart = (item: MenuItem) => {
-    // Check if user is logged in
-    const userSession = getUserSession()
-    if (!userSession) {
-      toast.error('Please sign in to add items to cart')
-      return
-    }
-
-    onAddToCart?.(item)
   }
 
   return (
@@ -68,7 +50,7 @@ export function Menu({
           <div className="relative aspect-square">
             <Image
               src={item.menu_image ? 
-                `${SUPABASE_CONFIG.URL}/storage/v1/object/public/${STORAGE.BUCKETS.MENU_IMAGES}/${item.menu_image}`
+                `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/menu-images/${item.menu_image}`
                 : "/images/placeholder-food.png"
               }
               alt={item.menu_name}
@@ -84,7 +66,7 @@ export function Menu({
           <div className="p-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-800">{item.menu_name}</h3>
-              <p className="text-lg font-bold text-amber-600">₱{item.menu_price.toFixed(2)}</p>
+              <p className="text-lg font-bold text-amber-600">${item.menu_price.toFixed(2)}</p>
             </div>
             <p className="text-sm text-gray-500 mt-1">{item.menu_category}</p>
             <p className="text-sm mt-2 text-gray-600 line-clamp-2">{item.menu_description}</p>
@@ -111,13 +93,27 @@ export function Menu({
                   </Button>
                 </>
               ) : (
-                <Button 
-                  className="w-full bg-amber-600 hover:bg-amber-700"
-                  onClick={() => handleAddToCart(item)}
-                  disabled={!item.available}
-                >
-                  {item.available ? 'Add to Cart' : 'Out of Stock'}
-                </Button>
+<Button 
+  className="w-full bg-amber-600 hover:bg-amber-700"
+  onClick={async () => {
+    // Get user session from cookies
+    const userSession = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('user-session='))
+      ?.split('=')[1]
+
+    if (!userSession) {
+      toast.error('Please sign in to add items to cart')
+      return
+    }
+
+    console.log('Add to Cart button clicked for:', item.menu_name); // Debugging
+    onAddToCart?.(item)
+  }}
+  disabled={!item.available}
+>
+  {item.available ? 'Add to Cart' : 'Out of Stock'}
+</Button>
               )}
             </div>
           </div>
@@ -125,4 +121,4 @@ export function Menu({
       ))}
     </>
   )
-}
+} 
