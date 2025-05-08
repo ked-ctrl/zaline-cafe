@@ -31,9 +31,8 @@ export default function CustomerMenu() {
   const [categories, setCategories] = useState<string[]>(["All"])
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState<string | null>(null)
-  const { addToCart } = useCart()
+  const { addToCart, cartCount } = useCart()
 
-  // Fetch user session on component mount
   useEffect(() => {
     const userSession = document.cookie
       .split('; ')
@@ -46,7 +45,6 @@ export default function CustomerMenu() {
     }
   }, [])
 
-  // Fetch menu items
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
@@ -76,7 +74,6 @@ export default function CustomerMenu() {
 
   const handleAddToCart = async (item: MenuItem) => {
     try {
-      // Get user session from cookies to check if user is logged in
       const userSession = document.cookie
         .split('; ')
         .find(row => row.startsWith('user-session='))
@@ -87,7 +84,6 @@ export default function CustomerMenu() {
         return;
       }
   
-      // Use the useCart hook's addToCart function
       const success = await addToCart(item);
       
       if (success) {

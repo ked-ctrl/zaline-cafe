@@ -88,7 +88,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const typedData = data as unknown as CartItem[];
       updateCartState(typedData);
     } catch (error) {
-      console.error('Error fetching cart items:', error);
       toast.error('Failed to load cart items');
     } finally {
       setLoading(false);
@@ -97,6 +96,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateQuantity = useCallback(async (itemId: string, quantity: number): Promise<boolean> => {
     try {
+      const item = cartItems.find(item => item.id === itemId);
+      if (!item) return false;
+
+      const quantityDifference = quantity - item.quantity;
+      
+      setCartCount(prevCount => prevCount + quantityDifference);
+      
+      setCartItems(prevItems => 
+        prevItems.map(item => 
+          item.id === itemId ? { ...item, quantity } : item
+        )
+      );
+      
+      setTotalPrice(prevPrice => 
+        prevPrice + (item.menu_item.menu_price * quantityDifference)
+      );
+
       const { error } = await supabase
         .from(TABLES.CART)
         .update({ quantity })
@@ -104,14 +120,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      await fetchCartItems();
       return true;
     } catch (error) {
-      console.error('Error updating quantity:', error);
       toast.error('Failed to update quantity');
+      await fetchCartItems();
       return false;
     }
-  }, [fetchCartItems]);
+  }, [cartItems, fetchCartItems]);
 
   const addToCart = useCallback(async (menuItem: MenuItem, quantity: number = 1): Promise<boolean> => {
     try {
@@ -125,10 +140,65 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
+        
         // Update cart count immediately for better UX
-        setCartCount(prevCount => prevCount + quantity);
-        return await updateQuantity(existingItem.id, newQuantity);
+        setCartCount(prevCount => {
+          const newCount = prevCount + quantity;
+          return newCount;
+        });
+        
+        // Also update the cartItems state immediately
+        setCartItems(prevItems => 
+          prevItems.map(item => 
+            item.id === existingItem.id 
+              ? { ...item, quantity: newQuantity } 
+              : item
+          )
+        );
+        
+        // Update total price immediately
+        setTotalPrice(prevPrice => 
+          prevPrice + (menuItem.menu_price * quantity)
+        );
+
+        const { error } = await supabase
+          .from(TABLES.CART)
+          .update({ quantity: newQuantity })
+          .eq('id', existingItem.id);
+
+        if (error) throw error;
+        
+        return true;
       }
+
+      // For new items, create a temporary optimistic item
+      const optimisticItem: CartItem = {
+        id: `temp-${Date.now()}`,
+        user_id: userSession.id,
+        menu_item_id: menuItem.id,
+        quantity,
+        menu_item: {
+          id: menuItem.id,
+          menu_name: menuItem.menu_name,
+          menu_price: menuItem.menu_price,
+          menu_image: menuItem.menu_image || '',
+          available: menuItem.available
+        }
+      };
+
+      // Update cart count immediately
+      setCartCount(prevCount => {
+        const newCount = prevCount + quantity;
+        return newCount;
+      });
+      
+      // Update cart items immediately with the optimistic item
+      setCartItems(prevItems => [...prevItems, optimisticItem]);
+      
+      // Update total price immediately
+      setTotalPrice(prevPrice => 
+        prevPrice + (menuItem.menu_price * quantity)
+      );
 
       const { error } = await supabase
         .from(TABLES.CART)
@@ -139,27 +209,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
       if (error) throw error;
-
-      // Update cart count immediately for better UX
-      setCartCount(prevCount => prevCount + quantity);
       
       await fetchCartItems();
       return true;
     } catch (error) {
-      console.error('Error adding item to cart:', error);
       toast.error('Failed to add item to cart');
+      await fetchCartItems();
       return false;
     }
-  }, [cartItems, updateQuantity, fetchCartItems]);
+  }, [cartItems, fetchCartItems]);
 
   const removeFromCart = useCallback(async (itemId: string): Promise<boolean> => {
     try {
-      // Find the item to get its quantity before removing
       const itemToRemove = cartItems.find(item => item.id === itemId);
-      if (itemToRemove) {
-        // Update cart count immediately for better UX
-        setCartCount(prevCount => prevCount - itemToRemove.quantity);
-      }
+      if (!itemToRemove) return false;
+
+      setCartCount(prevCount => prevCount - itemToRemove.quantity);
+      
+      setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+      
+      setTotalPrice(prevPrice => 
+        prevPrice - (itemToRemove.menu_item.menu_price * itemToRemove.quantity)
+      );
 
       const { error } = await supabase
         .from(TABLES.CART)
@@ -168,11 +239,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      await fetchCartItems();
       return true;
     } catch (error) {
-      console.error('Error removing item:', error);
       toast.error('Failed to remove item');
+      await fetchCartItems();
       return false;
     }
   }, [cartItems, fetchCartItems]);
@@ -182,6 +252,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userSession = getUserSession();
       if (!userSession) return false;
 
+      // Update cart state immediately
+      setCartCount(0);
+      setCartItems([]);
+      setTotalPrice(0);
+
       const { error } = await supabase
         .from(TABLES.CART)
         .delete()
@@ -189,16 +264,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      // Update cart count immediately to zero
-      setCartCount(0);
-      updateCartState([]);
       return true;
     } catch (error) {
-      console.error('Error clearing cart:', error);
       toast.error('Failed to clear cart');
+      await fetchCartItems();
       return false;
     }
-  }, [updateCartState]);
+  }, [fetchCartItems]);
 
   useEffect(() => {
     fetchCartItems();

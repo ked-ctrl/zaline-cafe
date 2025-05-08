@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/contexts/CartContext"
 import { ROUTES } from "@/config/constants"
 import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react"
 
 /**
  * Customer navigation bar component
@@ -17,6 +18,11 @@ import { Badge } from "@/components/ui/badge"
 export default function CustomerNavbar() {
   const { signOut } = useAuth()
   const { cartCount } = useCart()
+  const [displayCount, setDisplayCount] = useState(0)
+
+  useEffect(() => {
+    setDisplayCount(cartCount)
+  }, [cartCount])
 
   const handleLogout = async () => {
     try {
@@ -58,14 +64,14 @@ export default function CustomerNavbar() {
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link href={ROUTES.CART}>
               <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
+              {displayCount > 0 && (
                 <Badge 
                   className="absolute -top-2 -right-2 bg-amber-600 hover:bg-amber-700 text-white text-xs min-w-[1.2rem] h-[1.2rem] flex items-center justify-center rounded-full p-0"
                 >
-                  {cartCount}
+                  {displayCount}
                 </Badge>
               )}
-              <span className="sr-only">Cart ({cartCount} items)</span>
+              <span className="sr-only">Cart ({displayCount} items)</span>
             </Link>
           </Button>
           
