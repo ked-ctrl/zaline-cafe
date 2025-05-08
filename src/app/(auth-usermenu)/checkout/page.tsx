@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { JSX, useEffect, useState } from "react"
+import { JSX, Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import CustomerNavbar from "@/components/CustomerNavbar"
 import Footer from "../../components/footer"
 import { useOrder } from "@/hooks/use-order"
-import { useCart } from "@/hooks/use-cart"
+import { useCart } from "@/contexts/CartContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -18,7 +18,16 @@ import { SUPABASE_CONFIG } from "@/config/supabase"
 import { STORAGE } from "@/config/constants"
 import { motion } from "framer-motion"
 
-export default function CheckoutPage() {
+export default function CheckoutPage()
+{
+   return (
+     <Suspense>
+        <Checkout />
+     </Suspense>
+   )
+} 
+
+function Checkout() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
@@ -182,7 +191,6 @@ export default function CheckoutPage() {
           </div>
         )}
       </div>
-      
       <Footer />
     </div>
   )

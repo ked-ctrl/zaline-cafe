@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import CustomerNavbar from "@/components/CustomerNavbar"
 import Footer from "../../components/footer"
 import { supabase } from "@/lib/supabase"
-import { useCart } from "@/hooks/use-cart"
+import { useCart } from "@/contexts/CartContext"
 
 interface MenuItem {
   id: string
@@ -90,7 +90,9 @@ export default function CustomerMenu() {
       // Use the useCart hook's addToCart function
       const success = await addToCart(item);
       
-      if (!success) {
+      if (success) {
+        toast.success('Item added to cart');
+      } else {
         toast.error('Failed to add item to cart');
       }
     } catch (error) {
@@ -188,7 +190,7 @@ export default function CustomerMenu() {
               <Coffee className="h-12 w-12 mx-auto text-gray-300" />
               <h3 className="mt-4 text-lg font-medium text-gray-800">No items found</h3>
               <p className="mt-2 text-gray-500">
-                Try adjusting your search or filter to find what youre looking for.
+                Try adjusting your search or filter to find what you're looking for.
               </p>
             </div>
           )}
@@ -199,6 +201,3 @@ export default function CustomerMenu() {
     </div>
   )
 }
-
-
-

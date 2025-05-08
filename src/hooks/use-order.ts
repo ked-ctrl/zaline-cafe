@@ -4,7 +4,7 @@ import { getUserSession } from '@/lib/auth'
 import { toast } from 'sonner'
 import { TABLES } from '@/config/supabase'
 import { Order, OrderStatus } from '@/types/order'
-import { useCart } from './use-cart'
+import { useCart } from '@/contexts/CartContext'
 
 export function useOrder() {
   const [orders, setOrders] = useState<Order[]>([])

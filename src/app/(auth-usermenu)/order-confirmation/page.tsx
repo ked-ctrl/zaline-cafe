@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import CustomerNavbar from "@/components/CustomerNavbar"
 import Footer from "../../components/footer"
@@ -13,7 +13,16 @@ import { ROUTES } from "@/config/constants"
 import { OrderStatus } from "@/types/order"
 import { motion } from "framer-motion"
 
-export default function OrderConfirmationPage() {
+export default function OrderConfirmationPage()
+{
+  return (
+    <Suspense>
+      <OrderConfirmation />
+    </Suspense>
+  )
+}
+
+function OrderConfirmation() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')

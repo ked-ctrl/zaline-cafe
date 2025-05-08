@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { CartProvider } from "@/contexts/CartContext"
 
 export const metadata: Metadata = {
   title: "Zelin Café",
@@ -12,7 +13,9 @@ export default function AuthUserMenuLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      {children}
+      <CartProvider>
+        {children}
+      </CartProvider>
     </div>
   )
 }

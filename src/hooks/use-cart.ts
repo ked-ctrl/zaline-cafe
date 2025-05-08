@@ -99,39 +99,43 @@ export function useCart() {
     }
   }, [fetchCartItems])
 
-  const addToCart = useCallback(async (menuItem: MenuItem, quantity: number = 1): Promise<boolean> => {
-    try {
-      const userSession = getUserSession()
-      if (!userSession) {
-        toast.error('Please sign in to add items to cart')
-        return false
-      }
-
-      const existingItem = cartItems.find(item => item.menu_item_id === menuItem.id)
-
-      if (existingItem) {
-        const newQuantity = existingItem.quantity + quantity
-        return await updateQuantity(existingItem.id, newQuantity)
-      }
-
-      const { error } = await supabase
-        .from(TABLES.CART)
-        .insert({
-          user_id: userSession.id,
-          menu_item_id: menuItem.id,
-          quantity
-        })
-
-      if (error) throw error
-
-      await fetchCartItems()
-      return true
-    } catch (error) {
-      console.error('Error adding item to cart:', error)
-      toast.error('Failed to add item to cart')
+const addToCart = useCallback(async (menuItem: MenuItem, quantity: number = 1): Promise<boolean> => {
+  try {
+    const userSession = getUserSession()
+    if (!userSession) {
+      toast.error('Please sign in to add items to cart')
       return false
     }
-  }, [cartItems, updateQuantity, fetchCartItems])
+
+    const existingItem = cartItems.find(item => item.menu_item_id === menuItem.id)
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + quantity
+      setCartCount(prevCount => prevCount + quantity)
+      return await updateQuantity(existingItem.id, newQuantity)
+    }
+
+    const { error } = await supabase
+      .from(TABLES.CART)
+      .insert({
+        user_id: userSession.id,
+        menu_item_id: menuItem.id,
+        quantity
+      })
+
+    if (error) throw error
+
+    setCartCount(prevCount => prevCount + quantity)
+    
+    await fetchCartItems()
+    return true
+  } catch (error) {
+    console.error('Error adding item to cart:', error)
+    toast.error('Failed to add item to cart')
+    return false
+  }
+}, [cartItems, updateQuantity, fetchCartItems])
+
 
   const removeFromCart = useCallback(async (itemId: string): Promise<boolean> => {
     try {

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Trash2, Plus, Minus } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useCart } from "@/hooks/use-cart"
+import { useCart } from "@/contexts/CartContext"
 import { SUPABASE_CONFIG } from "@/config/supabase"
 import { STORAGE, ROUTES } from "@/config/constants"
 

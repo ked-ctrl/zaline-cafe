@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/use-auth"
-import { useCart } from "@/hooks/use-cart"
+import { useCart } from "@/contexts/CartContext"
 import { ROUTES } from "@/config/constants"
 import { Badge } from "@/components/ui/badge"
 
@@ -83,7 +83,3 @@ export default function CustomerNavbar() {
     </motion.header>
   )
 }
-
-
-
-
